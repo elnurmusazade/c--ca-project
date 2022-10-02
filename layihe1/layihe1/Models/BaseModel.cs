@@ -6,8 +6,8 @@ namespace layihe1.Models
 {
     public class BaseModel
     {
-        public string name { get; set; }
-        public bool softDelete { get; set; }
+        public string Name { get; set; }
+        public bool SoftDelete { get; set; }
        
     }
 }

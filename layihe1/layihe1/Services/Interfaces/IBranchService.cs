@@ -9,7 +9,7 @@ namespace layihe1.Services.Interfaces
     {
         public void HireEmployee();
         public void GetProfit();
-        public void TransferMoney();
-        public void TransferEmployee();
+        public bool TransferMoney(Branch from, Branch to, int amount);
+        public bool TransferEmployee(Branch from, Branch to, Employee employee);
     }
 }

@@ -8,64 +8,62 @@ using System.Text;
 
 namespace layihe1.Services.Implementations
 {
-    public class EmployeeService : IBankService<Employee>
+    public class EmployeeService : IEmployeeService
     {
-        private Bank<Employee> data;
+        private readonly Bank<Employee> employeesDB;
         public EmployeeService()
         {
-            data = new Bank<Employee>();
+            employeesDB = Program.employees;
         }
 
         public void Create(Employee emplye)
         {
-            if (emplye.softDelete == false)
+            if (emplye.SoftDelete == false)
             {
-                data.Datas.Add(emplye);
+                employeesDB.Datas.Add(emplye);
             }
         }
 
-        public void Delete(string name)
+        public bool Delete(string name)
         {
-            Employee emp = data.Datas.Find(x => x.name.ToLower().Trim() == name.ToLower().Trim());
-            emp.softDelete = true;
+            Employee emp = employeesDB.Datas.Find(x => x.Name.ToLower().Trim() == name.ToLower().Trim());
+            emp.SoftDelete = true;
             GetAll();
-
+            return true;
         }
 
-        public void Get(string filter)
+        public Employee Get(string filter)
         {
             try
             {
-                Employee emp = data.Datas.Find(x => x.name.Contains(filter.ToLower().Trim()) || x.surname.Contains(filter.ToLower().Trim()));
-                Console.WriteLine(emp.name + " " + emp.surname); 
+                Employee emp = employeesDB.Datas.Find(x => x.Name.ToLower().Trim().Contains(filter.ToLower().Trim()) || x.surname.ToLower().Trim().Contains(filter.ToLower().Trim()));
+                return emp;
             }
             catch (Exception)
             {
                 Console.WriteLine("employee wasnt found");
+                throw;
             }
         }
 
         public void GetAll()
         {
-            foreach (var empl in data.Datas.Where(m => m.softDelete = false))
+            foreach (var empl in employeesDB.Datas.Where(m => m.SoftDelete == false))
             {
-                Console.WriteLine(empl.name + " " + empl.surname);
+                Console.WriteLine(empl.Name + " " + empl.surname+ ", "+ empl.profession + ", salary exp.: " + empl.salary);
             }
         }
-      
-        public void Update( string date1, string date2) //date1 = name , date2=surname
+
+        public Employee Update(Employee employee, string profession, int salary)
         {
-            try
-            {
-                var e = data.Datas.Where(x => x.name == date1 && x.surname == date2).ToList();
-                e.ForEach(x => x.salary = 1000);
-                e.ForEach(x => x.profession = "operator");
-                Console.WriteLine(e);
-            }
-            catch(Exception)
-            {
-                Console.WriteLine("pls enter correct name and surname ");
-            }
+            employee.profession = profession;
+            employee.salary = salary;
+            return employee;
+        }
+
+        public Employee Update(Employee entity, string dataToUptdate)
+        {
+            throw new NotImplementedException();
         }
     }
 }

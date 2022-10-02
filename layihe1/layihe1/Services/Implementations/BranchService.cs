@@ -8,96 +8,132 @@ using System.Text;
 
 namespace layihe1.Services.Implementations
 {
-    public class BranchService : IBankService<Branch>
+    public class BranchService : IBranchService
     {
-        public Bank<Branch> data;
+        public Bank<Branch> branchDB;
         public BranchService()
         {
-            data = new Bank<Branch>();
+            branchDB = Program.branches;
         }
         public void Create(Branch branch)
         {
-            if (branch.softDelete == false)
+            if (branch.SoftDelete == false)
             {
-                data.Datas.Add(branch);
+                branchDB.Datas.Add(branch);
             }
         }
 
-        public  void Delete(string name)
+        public bool Delete(string name)
         {
-            Branch brnc = data.Datas.Find(x => x.name.ToLower().Trim() == name.ToLower().Trim());
-            brnc.softDelete = true;
-            GetAll();
+            try
+            {
+                Branch brnc = branchDB.Datas.Find(x => x.Name.ToLower().Trim() == name.ToLower().Trim());
+                brnc.SoftDelete = true;
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
         }
 
         public void GetAll()
         {
-            foreach (var brnch in data.Datas.Where(m => m.softDelete = false))
+            int count = 1;
+            foreach (var brnch in branchDB.Datas.Where(m => m.SoftDelete == false))
             {
-                Console.WriteLine(brnch.name + " " + brnch.address + " " + brnch.budget);
+                Console.WriteLine(count + ". " + brnch.Name + " " + brnch.Address + " " + brnch.Budget);
+                count++;
             }
         }
 
-        public void Get(string filter)
+        public Branch Get(string name)
         {
             try
             {
-                Branch brnch = data.Datas.Find(x => x.name.Contains(filter.ToLower().Trim()) || x.address.Contains(filter.ToLower().Trim()));
-                Console.WriteLine(brnch.name + " " + brnch.address);
+                Branch brnch = branchDB.Datas.Find(
+                    x => x.Name.ToLower().Trim().Contains(name.ToLower().Trim()) ||
+                    x.Address.ToLower().Trim().Contains(name.ToLower().Trim())
+                    );
+                return brnch;
             }
             catch (Exception)
             {
                 Console.WriteLine("branch wasnt found");
+                throw;
             }
         }
 
 
-        public void Update(string date1, string date2)
+        public Branch Update(Branch branch, string budget)
         {
             try
             {
-
-
-                var e = data.Datas.Where(x => x.name.ToLower().Trim() == date1.ToLower().Trim() &&
-                x.address.ToLower().Trim() == date2.ToLower().Trim()).ToList(); // date1 = name , date2 = address
-
-                e.ForEach(x => x.budget = 100000);
-                e.ForEach(x => x.address = "28 may");
-                Console.WriteLine(e);
+                bool parseResult = int.TryParse(budget, out int newAmount);
+                if (parseResult)
+                {
+                    branch.Budget = newAmount;
+                    return branch;
+                }
+                else
+                {
+                    throw new ArgumentException();
+                }
             }
-            catch(Exception)
+            catch (Exception ex)
             {
-                Console.WriteLine("pls enter correct name and address");
+                if (ex is ArgumentException)
+                    Console.WriteLine("Wrong budget type. Try again later.");
+                else
+                    Console.WriteLine("Error occured. Please try again.");
+                return null;
             }
         }
 
 
         public void GetProfit(Branch branch, Employee employee)
         {
-            int lastbudget = branch.budget - employee.salary;
+            int lastbudget = branch.Budget - employee.salary;
             Console.WriteLine(lastbudget);
         }
 
         public void HireEmployee(string name, string address)
         {
-            var a = data.Datas.Find(x => x.name.ToLower().Trim() == name.ToLower().Trim());
+            var a = branchDB.Datas.Find(x => x.Name.ToLower().Trim() == name.ToLower().Trim());
 
-           Branch branch = data.Datas.Find(x => x.address.ToLower().Trim() == address.ToLower().Trim());
-            
-           
-
-
+            Branch branch = branchDB.Datas.Find(x => x.Address.ToLower().Trim() == address.ToLower().Trim());
         }
 
-        public void TransferEmployee()
+        public bool TransferEmployee(Branch from, Branch to, Employee employee)
+        {
+            from.Employees.Remove(employee);
+            to.Employees.Add(employee);
+            return true;
+        }
+
+        public bool TransferMoney(Branch from, Branch to, int amount)
+        {
+            if (amount <= from.Budget)
+            {
+                from.Budget -= amount;
+                to.Budget += amount;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public void HireEmployee()
         {
             throw new NotImplementedException();
         }
 
-        public void TransferMoney()
+        public void GetProfit()
         {
-
+            throw new NotImplementedException();
         }
     }
-  }
+}
 

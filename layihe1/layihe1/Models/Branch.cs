@@ -6,16 +6,15 @@ namespace layihe1.Models
 {
     public class Branch :BaseModel 
     {
-        public string address { get; set; }
-        public int budget { get; set; } 
-        public List<Employee> employees { get; set; }
-        public Branch(string name,string address, int budget,bool softDelete)
+        public string Address { get; set; }
+        public int Budget { get; set; }
+        public List<Employee> Employees { get; set; } = new List<Employee>();
+        public Branch(string name,string address, int budget,bool softDelete = false)
         {
-            this.name = name;
-            this.address = address;
-            this.budget = budget;
-            
-            softDelete = false;
+            Name = name;
+            SoftDelete = softDelete;
+            Address = address;
+            Budget = budget;
         }
     }
 }
